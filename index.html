@@ -1,0 +1,126 @@
+  <!DOCTYPE html>
+  <html>
+
+  <head>
+    <meta charset="utf-8">
+    <title>DEMO6：自定义画板 </title>
+  </head>
+
+  <body>
+    <canvas id="canvas" width="600" height="300">
+浏览器不支持 canvas   <!-- 如果不支持会显示这段文字 -->
+</canvas>
+    <br/>
+    <button style="width:78px;background-color:yellow;" onclick='linecolor="yellow";'> 黄 </button>
+    <button style="width:78px ;background-color:red;" onclick='linecolor="red";'> 红 </button>
+    <button style="width:78px ;background-color:blue;" onclick='linecolor="blue";'> 蓝 </button>
+    <button style="width:78px ;background-color:green;" onclick='linecolor="green";'> 绿 </button>
+    <button style="width:78px ;background-color:white;" onclick='linecolor="white";'> 白 </button>
+    <button style="width:78px ;background-color:gray;" onclick='linecolor="gray";'> 灰 </button>
+    <button style="width:78px ;background-color:pink;" onclick='linecolor="pink";'> 粉 </button>
+    <br/>
+    <br/>
+    <button style="width: 80px;background-color: white;" onclick="linw=4;"> 细 </button>
+    <button style="width: 80px;background-color: white;" onclick="linw=8;"> 中 </button>
+    <button style="width: 80px;background-color: white;" onclick="linw=16;"> 粗 </button> &nbsp;&nbsp;&nbsp;&nbsp;
+    <button style="width: 80px;background-color: white;" onclick="copyimage();"> 预览 </button>
+    <button style="width: 80px;background-color: white;" onclick="downloadimage();"> 下载 </button>
+    <br/>
+
+
+
+
+    <br/>
+    <img src="" id="image_png" width="600px" height="300px">
+    <br/>
+
+
+    <script type="text/javascript">
+      var canvas = document.getElementById('canvas'); // 获取标签
+      var ctx = canvas.getContext("2d");
+
+
+      var fillStyle = "black";
+      ctx.fillRect(0, 0, 600, 300);
+      var onoff = false; // 按下标记
+      var oldx = -10;
+      var oldy = -10;
+      // 设置颜色
+      var linecolor = "white";
+      var linw = 4;
+      canvas.addEventListener("mousemove", draw, true); // 鼠标移动事件
+      canvas.addEventListener("mousedown", down, false); // 鼠标按下事件
+      canvas.addEventListener("mouseup", up, false); // 鼠标弹起事件
+      function down(event) {
+        onoff = true;
+        oldx = event.pageX - 10;
+        oldy = event.pageY - 10;
+      }
+
+      function up() {
+        onoff = false;
+      }
+
+      function draw(event) {
+        if (onoff == true) {
+          var newx = event.pageX - 10;
+          var newy = event.pageY - 10
+          ctx.beginPath();
+          ctx.moveTo(oldx, oldy);
+          ctx.lineTo(newx, newy);
+          ctx.strokeStyle = linecolor;
+          ctx.lineWidth = linw;
+          ctx.lineCap = "round";
+          ctx.stroke();
+
+
+          oldx = newx;
+          oldy = newy;
+        }
+      }
+
+      function copyimage(event) {
+        var img_png_src = canvas.toDataURL("image/png"); // 将画板保存为图片格式的函数
+        document.getElementById("image_png").src = img_png_src;
+      }
+
+      function downloadimage(event) {
+        // 图片导出为 png 格式
+        var type = 'png';
+        // 返回一个包含 JPG 图片的 <img> 元素
+        var img_png_src = canvas.toDataURL("image/png"); // 将画板保存为图片格式的函数
+        // 加工 image data，替换 mime type
+        imgData = img_png_src.replace(_fixType(type), 'image/octet-stream');
+        // 下载后的问题名
+        var filename = '个人画板_' + (new Date()).getTime() + '.' + type;
+        // download
+        saveFile(imgData, filename);
+      }
+
+      /**
+       * 在本地进行文件保存
+       */
+      var saveFile = function(data, filename) {
+        var save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+        save_link.href = data;
+        save_link.download = filename;
+
+        var event = document.createEvent('MouseEvents');
+        event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        save_link.dispatchEvent(event);
+      };
+
+      /**
+       * 获取 mimeType
+       * @param  {String} type the old mime-type
+       * @return the new mime-type
+       */
+      var _fixType = function(type) {
+        type = type.toLowerCase().replace(/jpg/i, 'jpeg');
+        var r = type.match(/png|jpeg|bmp|gif/)[0];
+        return 'image/' + r;
+      };
+    </script>
+  </body>
+
+  </html>
